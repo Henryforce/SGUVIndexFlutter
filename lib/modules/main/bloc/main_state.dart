@@ -15,11 +15,11 @@ class MainBlocLoadingState extends MainBlocState {
   List<Object> get props => [statusMessage];
 }
 
-class MainBlocValidDateState extends MainBlocState {
+class MainBlocValidDataState extends MainBlocState {
   final String statusMessage = 'MainBlocValidDateState';
   final List<UVUIData> data;
 
-  const MainBlocValidDateState(this.data);
+  const MainBlocValidDataState(this.data);
 
   @override
   List<Object> get props => [statusMessage];
@@ -29,8 +29,8 @@ class MainBlocErrorState extends MainBlocState {
   final String statusMessage = 'MainBlocErrorState';
   final String errorMessage;
 
-  const MainBlocErrorState(String errorMessage): 
-    this.errorMessage = errorMessage;
+  const MainBlocErrorState(String errorMessage)
+      : this.errorMessage = errorMessage;
 
   @override
   List<Object> get props => [statusMessage, errorMessage];
