@@ -3,7 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sguvindex/modules/main/bloc/main_bloc.dart';
 import 'package:sguvindex/modules/main/bloc/main_state.dart';
 import 'package:http/http.dart' as http;
-import 'package:sguvindex/modules/main/data/uv_ui_data.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
+import 'package:sguvindex/modules/main/ui/uv_data_record_tile.dart';
 
 class MainPage extends StatelessWidget {
   const MainPage({Key? key}) : super(key: key);
@@ -11,9 +12,8 @@ class MainPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => MainBloc(
-          httpClient: http.Client()
-        )..add(MainBlocEvent.loadUVData),
+      create: (_) =>
+          MainBloc(httpClient: http.Client())..add(MainBlocEvent.loadUVData),
       child: MainView(),
     );
   }
@@ -21,15 +21,25 @@ class MainPage extends StatelessWidget {
 
 class MainView extends StatelessWidget {
   final _scrollController = ScrollController();
+  final RefreshController _refreshController =
+      RefreshController(initialRefresh: false);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Counter')),
+      appBar: AppBar(title: const Text('SGUVIndex')),
       body: Center(
         child: BlocBuilder<MainBloc, MainBlocState>(
           builder: (context, state) {
-            return _buildFromState(context, state);
+            return SmartRefresher(
+              controller: _refreshController,
+              enablePullDown: true,
+              child: _buildFromState(context, state),
+              onRefresh: () async {
+                BlocProvider.of<MainBloc>(context)
+                    .add(MainBlocEvent.loadUVData);
+              },
+            );
           },
         ),
       ),
@@ -39,7 +49,8 @@ class MainView extends StatelessWidget {
   Widget _buildFromState(BuildContext context, MainBlocState state) {
     final textTheme = Theme.of(context).textTheme;
 
-    if (state is MainBlocValidDateState) {
+    if (state is MainBlocValidDataState) {
+      _refreshController.refreshCompleted();
       return _buildValidData(state);
     } else if (state is MainBlocErrorState) {
       return Text('${state.errorMessage}', style: textTheme.headline2);
@@ -48,7 +59,7 @@ class MainView extends StatelessWidget {
     }
   }
 
-  Widget _buildValidData(MainBlocValidDateState state) {
+  Widget _buildValidData(MainBlocValidDataState state) {
     if (state.data.isEmpty) {
       return const Center(child: Text('No records available at the moment'));
     }
@@ -58,26 +69,6 @@ class MainView extends StatelessWidget {
       },
       itemCount: state.data.length,
       controller: _scrollController,
-    );
-  }
-}
-
-class UVDataRecordTile extends StatelessWidget {
-  const UVDataRecordTile({Key? key, required this.record}) : super(key: key);
-
-  final UVUIData record;
-
-  @override
-  Widget build(BuildContext context) {
-    // final textTheme = Theme.of(context).textTheme;
-    return Material(
-      child: ListTile(
-        // leading: Text('${post.id}', style: textTheme.caption),
-        title: Text(record.uvValue),
-        isThreeLine: true,
-        subtitle: Text(record.date),
-        dense: true,
-      ),
     );
   }
 }

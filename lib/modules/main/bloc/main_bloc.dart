@@ -11,8 +11,7 @@ import 'main_state.dart';
 enum MainBlocEvent { loadUVData }
 
 class MainBloc extends Bloc<MainBlocEvent, MainBlocState> {
-  MainBloc({required this.httpClient}):
-    super(const MainBlocLoadingState());
+  MainBloc({required this.httpClient}) : super(const MainBlocLoadingState());
 
   final http.Client httpClient;
 
@@ -29,11 +28,11 @@ class MainBloc extends Bloc<MainBlocEvent, MainBlocState> {
 
     try {
       final uvData = await _fetchUVData();
-      final uvUIData = uvData.items.first.records.map(
-        (record) => UVUIData.fromUVData(record)
-      ).toList();
-      yield MainBlocValidDateState(uvUIData);
-    } catch(exception) {
+      final uvUIData = uvData.items.first.records
+          .map((record) => UVUIData.fromUVData(record))
+          .toList();
+      yield MainBlocValidDataState(uvUIData);
+    } catch (exception) {
       yield MainBlocErrorState(exception.toString());
     }
   }
@@ -51,5 +50,4 @@ class MainBloc extends Bloc<MainBlocEvent, MainBlocState> {
     }
     throw Exception('error fetching posts');
   }
-
 }
