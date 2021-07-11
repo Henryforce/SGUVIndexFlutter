@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:sguvindex/modules/main/bloc/main_bloc.dart';
 import 'package:sguvindex/modules/main/bloc/main_state.dart';
 import 'package:http/http.dart' as http;
@@ -27,7 +29,12 @@ class MainView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('SGUVIndex')),
+      // appBar: AppBar(title: const Text('SGUVIndex')),
+      appBar: AppBar(
+        title: _buildHeader(),
+        backgroundColor: Colors.transparent,
+        elevation: 0.0,
+      ),
       body: Center(
         child: BlocBuilder<MainBloc, MainBlocState>(
           builder: (context, state) {
@@ -70,5 +77,48 @@ class MainView extends StatelessWidget {
       itemCount: state.data.length,
       controller: _scrollController,
     );
+  }
+
+  Widget _buildHeader() {
+    return Wrap(
+      alignment: WrapAlignment.center,
+      spacing: 16,
+      children: [
+        Column(
+          children: [
+            Text(
+              'Singapore',
+              style: GoogleFonts.montserrat(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 24),
+            ),
+            Text(
+              'UV Levels',
+              style: GoogleFonts.montserrat(color: Colors.black, fontSize: 24),
+            )
+          ],
+        ),
+        Column(
+          children: [
+            Text(
+              DateFormat.MMM().format(_singaporeTimeNow()),
+              style: GoogleFonts.montserrat(color: Colors.black, fontSize: 20),
+            ),
+            Text(
+              DateFormat.d().format(_singaporeTimeNow()),
+              style: GoogleFonts.montserrat(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 30),
+            )
+          ],
+        ),
+      ],
+    );
+  }
+
+  DateTime _singaporeTimeNow() {
+    return DateTime.now().toUtc().add(const Duration(hours: 8));
   }
 }
